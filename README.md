@@ -209,3 +209,34 @@ WHERE empid <= (
     FROM employee
 );
 ```
+
+---
+
+## Technologies Used
+- **Database:** PostgreSQL
+- **SQL Concepts:**
+    - **Window Functions:** `DENSE_RANK()`, `ROW_NUMBER()`, and `SUM() OVER()`
+    - **Subqueries and Joins:** Mastery of **Self-Joins** and **Inner Joins**
+    - **Aggregate Functions:** Advanced data grouping using `GROUP BY` and `HAVING`
+    - **Pattern Matching:** Advanced string filtering using `LIKE` and Wildcards
+
+
+
+---
+
+## Key Learnings
+- **Business Problem Solving with SQL:** Applying SQL to solve real-world business questions related to employee distribution, collaboration, and salary analysis.
+- **Advanced Relational Logic:** Successfully implemented **Self-Joins** to uncover hidden organizational links, such as employees sharing projects or residential locations.
+- **Data Insights:** Extracting actionable insights from large datasets to drive decisions in workforce management and regional planning.
+- **Analytical Ranking:** Utilized Window Functions to handle competitive salary rankings and data partitioning.
+
+
+
+---
+
+## Business Impact
+- **Optimized Resource Allocation:** Identified project overlaps, allowing management to visualize team synergy and reallocate talent where needed.
+- **Data-Driven Compensation:** Established automated salary tiers, providing HR with a structured framework for market-parity checks and retention strategies.
+- **Strategic Regional Planning:** Mapped regional talent density to help leadership decide where to establish satellite offices or corporate transit hubs.
+
+---
