@@ -1,293 +1,211 @@
-/* ================================================================
-SQL Workforce Analytics Project – Employee and Project Insights
-Business Analysis Using SQL
-================================================================ */
+# SQL-Workforce-Analytics-Project-Employee-and-Project-Insights
+
+### Overview
+This project focuses on analyzing workforce data using SQL to derive actionable insights about employee distribution, project collaboration, hiring trends, and salary segmentation. The dataset simulates a simplified HR analytics environment containing employee demographic data, salary information, project assignments, and joining dates.
+
+The goal of this project is to demonstrate how SQL can be used to answer real-world workforce analytics questions that support HR planning, organizational decision-making, and team collaboration analysis.
+
+### The project includes:
+
+1. Data schema design and table creation.
+2. Exploratory Data Analysis (EDA).
+3. Workforce analytics using SQL queries.
+4. Solving key HR business problems through SQL queries.
+
+---
+
+## Key Features
+
+- **Database Schema:** A structured relational database consisting of two tables: `employee` and `employeedetail`.
+- **Workforce Analytics:** Queries designed to analyze employee distribution, project collaboration, and hiring patterns.
+- **Business Problem Analysis:** Tackles real-world HR analytics scenarios such as salary segmentation and workforce distribution.
+- **Advanced Querying:** Includes window functions, subqueries, ranking functions, and aggregate analysis.
+
+---
+
+## Database Schema
+
+The project uses two main tables:
+
+### 1. **employee**
+Contains employee demographic and salary information.
+
+- `empid`: Unique identifier for each employee.
+- `empname`: Employee name.
+- `gender`: Gender of the employee.
+- `salary`: Employee salary.
+- `city`: City where the employee is located.
+
+### 2. **employeedetail**
+Stores project assignments and employment information.
+
+- `empid`: References the employee table.
+- `project`: Project assigned to the employee.
+- `empposition`: Employee position.
+- `doj`: Date when the employee joined the organization.
+
+---
+
+## SQL Queries and Analysis
+
+This project contains SQL queries structured around Exploratory Data Analysis (EDA) and Business Problem Solving. The queries help analyze employee distribution, project collaboration patterns, salary segmentation, and hiring trends.
+
+---
+
+## Exploratory Data Analysis
+
+```sql
+SELECT * FROM employee;
+
+SELECT * FROM employeedetail;
+
+SELECT COUNT(*) AS total_employees FROM employee;
+
+SELECT DISTINCT city FROM employee;
+
+SELECT DISTINCT project FROM employeedetail;
+```
 
 
-/* ================================================================
-DATABASE SETUP
-This dataset simulates a simplified HR analytics environment.
-================================================================ */
+## Business Problem Queries
 
-CREATE TABLE Employee (
-EmpID int NOT NULL,
-EmpName Varchar,
-Gender Char,
-Salary int,
-City Char(20)
-);
-
-INSERT INTO Employee
-VALUES
-(1, 'Arjun', 'M', 75000, 'Pune'),
-(2, 'Ekadanta', 'M', 125000, 'Bangalore'),
-(3, 'Lalita', 'F', 150000 , 'Mathura'),
-(4, 'Madhav', 'M', 250000 , 'Delhi'),
-(5, 'Visakha', 'F', 120000 , 'Mathura');
-
-
-CREATE TABLE EmployeeDetail (
-EmpID int NOT NULL,
-Project Varchar,
-EmpPosition Char(20),
-DOJ date
-);
-
-INSERT INTO EmployeeDetail
-VALUES
-(1, 'P1', 'Executive', '2019-01-26'),
-(2, 'P2', 'Executive', '2020-05-04'),
-(3, 'P1', 'Lead', '2021-10-21'),
-(4, 'P3', 'Manager', '2019-11-29'),
-(5, 'P2', 'Manager', '2020-08-01');
-
-
-
-/* ================================================================
-EXPLORATORY DATA ANALYSIS
-Understand employee distribution and project assignments
-================================================================ */
-
-SELECT * FROM Employee;
-
-SELECT * FROM EmployeeDetail;
-
-SELECT COUNT(*) AS total_employees FROM Employee;
-
-SELECT DISTINCT city FROM Employee;
-
-SELECT DISTINCT project FROM EmployeeDetail;
-
-
-
-/* ================================================================
-BUSINESS PROBLEM 1
-Which cities have more than one employee?
-Understanding workforce concentration helps HR plan resource
-allocation across locations.
-================================================================ */
-
-SELECT count(empname), city
+1. **Identify cities that have more than one employee.**
+```
+SELECT 
+    COUNT(empname), city
 FROM employee
 GROUP BY city
-HAVING count(empname) > 1;
-
-
-
-/* ================================================================
-BUSINESS PROBLEM 2
-List employees from cities that have multiple employees.
-This identifies workforce clusters in key locations.
-================================================================ */
-
-SELECT empname, city
+HAVING COUNT(empname) > 1;
+```
+2. **List employees working in cities with multiple employees.**
+```
+SELECT 
+    empname, city
 FROM employee
-WHERE city IN
-(
-SELECT city
-FROM employee
-GROUP BY city
-HAVING count(empname) > 1
+WHERE city IN (
+    SELECT city
+    FROM employee
+    GROUP BY city
+    HAVING COUNT(empname) > 1
 );
-
-
-
-/* ================================================================
-BUSINESS PROBLEM 3
-Identify employees living in the same city.
-This helps understand regional collaboration opportunities.
-================================================================ */
-
-SELECT e1.empname, e1.city
+```
+3. **Identify employees living in the same city.**
+```
+SELECT 
+    e1.empname, 
+    e1.city
 FROM employee AS e1
 JOIN employee AS e2
 ON e1.city = e2.city
 WHERE e1.empname != e2.empname;
-
-
-
-/* ================================================================
-BUSINESS PROBLEM 4
-Which employees are working together on the same project?
-This helps identify team collaboration patterns.
-================================================================ */
-
-SELECT e1.empname, e2.empname, d1.project
+```
+4. **Identify employees working on the same project.**
+```
+SELECT 
+    e1.empname, 
+    e2.empname, 
+    d1.project
 FROM employee e1
-JOIN employeedetail d1 ON e1.empid = d1.empid
-JOIN employeedetail d2 ON d1.project = d2.project
-JOIN employee e2 ON d2.empid = e2.empid
+JOIN employeedetail d1 
+ON e1.empid = d1.empid
+JOIN employeedetail d2 
+ON d1.project = d2.project
+JOIN employee e2 
+ON d2.empid = e2.empid
 WHERE e1.empid < e2.empid;
-
-
-
-/* ================================================================
-BUSINESS PROBLEM 5
-Analyze hiring trends by year.
-Helps HR understand recruitment patterns over time.
-================================================================ */
-
-SELECT extract(year from doj), count(*)
+```
+5. **Analyze employee hiring trends by year.**
+```
+SELECT 
+    EXTRACT(YEAR FROM doj) AS join_year,
+    COUNT(*) AS employees_joined
 FROM employeedetail
-GROUP BY extract(year from doj);
-
-
-
-/* ================================================================
-BUSINESS PROBLEM 6
-Segment employees into salary bands.
-Helps HR analyze compensation distribution.
-================================================================ */
-
-SELECT empname, salary,
-CASE
-WHEN salary < 100000 THEN 'low'
-WHEN salary >= 100000 AND salary <= 200000 THEN 'medium'
-WHEN salary > 200000 THEN 'high'
-END AS salarystatus
+GROUP BY join_year
+ORDER BY join_year;
+```
+6. **Categorize employees into salary bands (Low, Medium, High).**
+```
+SELECT 
+    empname,
+    salary,
+    CASE
+        WHEN salary < 100000 THEN 'Low'
+        WHEN salary >= 100000 AND salary <= 200000 THEN 'Medium'
+        WHEN salary > 200000 THEN 'High'
+    END AS salary_band
 FROM employee;
-
-
-
-/* ================================================================
-BUSINESS PROBLEM 7
-Identify the second highest salary in the organization.
-Useful for benchmarking compensation beyond top earners.
-================================================================ */
-
+```
+7. **Find the second highest salary in the organization.**
+```
 SELECT *
-FROM
-(
-SELECT empname,salary,
-dense_rank() over(order by salary desc) as rnk
-FROM employee
+FROM (
+    SELECT 
+        empname,
+        salary,
+        DENSE_RANK() OVER (ORDER BY salary DESC) AS rnk
+    FROM employee
 ) AS emp
 WHERE rnk = 2;
-
-
-
-/* ================================================================
-BUSINESS PROBLEM 8
-Retrieve alternate employee records.
-Useful for sampling datasets.
-================================================================ */
-
+```
+8. **Retrieve even row records from the employee table.**
+```
 SELECT *
-FROM
-(
-SELECT *,
-row_number() over(order by empid) as row_number
-FROM employee
+FROM (
+    SELECT *,
+           ROW_NUMBER() OVER (ORDER BY empid) AS row_number
+    FROM employee
 ) AS emp
-WHERE row_number %2 = 0;
-
-
-
-/* ================================================================
-BUSINESS PROBLEM 9
-Retrieve alternate records starting with the first row.
-================================================================ */
-
+WHERE row_number % 2 = 0;
+```
+9. **Retrieve odd row records from the employee table.**
+```
 SELECT *
-FROM
-(
-SELECT *,
-row_number() over(order by empid) as row_number
-FROM employee
+FROM (
+    SELECT *,
+           ROW_NUMBER() OVER (ORDER BY empid) AS row_number
+    FROM employee
 ) AS emp
 WHERE row_number % 2 = 1;
-
-
-
-/* ================================================================
-BUSINESS PROBLEM 10
-Calculate cumulative salary distribution.
-Useful for payroll forecasting and financial analysis.
-================================================================ */
-
-SELECT empname, salary,
-SUM(salary) OVER (ORDER BY salary) AS cum_Salary
+```
+10. **Calculate cumulative salary distribution across employees.**
+```
+SELECT 
+    empname,
+    salary,
+    SUM(salary) OVER (ORDER BY salary) AS cumulative_salary
 FROM employee;
-
-
-
-/* ================================================================
-BUSINESS PROBLEM 11
-Filter employees using pattern matching.
-Useful for HR search and validation queries.
-================================================================ */
-
+```
+11. **Filter employee names using pattern matching.**
+```
 SELECT empname FROM employee WHERE empname LIKE 'A%';
-
 SELECT empname FROM employee WHERE empname LIKE '_a%';
-
 SELECT empname FROM employee WHERE empname LIKE '%y_';
-
 SELECT empname FROM employee WHERE empname LIKE '%___l';
-
 SELECT empname FROM employee WHERE empname LIKE 'V%a';
-
-
-
-/* ================================================================
-BUSINESS PROBLEM 12
-Identify the highest salary in the organization.
-================================================================ */
-
-SELECT empname, max(salary)
+```
+12. **Identify the highest salary in the organization.**
+```
+SELECT 
+    empname,
+    MAX(salary)
 FROM employee
 GROUP BY empname
-ORDER BY max(salary) desc
+ORDER BY MAX(salary) DESC
 LIMIT 1;
-
-
-
-/* ================================================================
-BUSINESS PROBLEM 13
-Find the Nth highest salary.
-Useful for compensation benchmarking.
-================================================================ */
-
-SELECT DISTINCT(salary)
+```
+13. **Find the Nth highest salary in the organization.**
+```
+SELECT DISTINCT salary
 FROM employee
-ORDER BY salary desc
+ORDER BY salary DESC
 LIMIT 1 OFFSET N-1;
-
-
-
-/* ================================================================
-BUSINESS PROBLEM 14
-Split employees into two halves.
-Useful for workload distribution or batch processing.
-================================================================ */
-
+```
+14. **Split employees into two halves for workload distribution.**
+```
 SELECT *
 FROM employee
-WHERE empid <=
-(
-SELECT count(empid)/2
-FROM employee
+WHERE empid <= (
+    SELECT COUNT(empid)/2
+    FROM employee
 );
-
-
-
-/* ================================================================
-KEY LEARNINGS AND BUSINESS IMPACT
-================================================================
-
-This project demonstrates how SQL can be used to analyze workforce
-data and extract insights that support organizational decision-making.
-
-Key capabilities demonstrated:
-
-• Workforce distribution analysis across cities
-• Project collaboration insights between employees
-• Hiring trend analysis using date functions
-• Salary segmentation for compensation analysis
-• Ranking techniques to identify top earners
-• Window functions for advanced analytical queries
-• Pattern matching for HR data filtering
-
-These SQL techniques are widely used in real-world analytics
-for HR reporting, workforce planning, and business intelligence.
-*/
+```
